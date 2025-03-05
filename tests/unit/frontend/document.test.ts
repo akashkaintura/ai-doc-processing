@@ -1,5 +1,5 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { useDocumentProcessor } from '../../../client/src/hooks/useWasm';
+import { useDocumentProcessor } from '../../../client/src/hooks/useDocumentProcessor';
 import { useWasm } from '../../../client/src/hooks/useWasm';
 
 jest.mock('../../../apps/client/src/hooks/useWasm');
@@ -22,6 +22,7 @@ describe('Document Processing', () => {
 
     test('OCR Processing', async () => {
         const file = new File(['test content'], 'test.png', { type: 'image/png' });
+
 
         window.Worker = jest.fn().mockImplementation(() => new WorkerMock());
 

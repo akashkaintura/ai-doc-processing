@@ -1,34 +1,65 @@
-importScripts('../../public/wasm/ocr-engine.wasm');
-import { useEffect } from 'react';
+/// <reference lib="webworker" />
 
+interface WorkerGlobalScope {
+    OCR: {
+        processImage: (buffer: ArrayBuffer) => Promise<string>;
+    };
+}
+
+// Import WASM initialization script
+importScripts('/wasm/ocr-engine.js');
+
+let isOCRLoaded = false;
+
+// Initialize WASM module
 self.onmessage = async (e) => {
-    const { imageBuffer } = e.data;
-    // WASM OCR processing
-    const text = await OCR.processImage(imageBuffer);
-    postMessage(text);
-};
+    if (e.data.type === 'INIT') {
+        try {
+            const wasmModule = await WebAssembly.instantiateStreaming(
+                fetch('/wasm/ocr-engine.wasm'),
+                {
+                    env: {
+                        memory: new WebAssembly.Memory({ initial: 256 }),
+                        abort: (msg: string) => console.error(`WASM Aborted: ${msg}`)
+                    }
+                }
+            );
 
-
-
-// src/hooks/useWasm.ts
-export const useWasm = (wasmPath: string) => {
-    useEffect(() => {
-        const loadWasm = async () => {
-            const imports = {
-                env: {
-                    memory: new WebAssembly.Memory({ initial: 256 }),
-                    abort: () => console.error('WASM Aborted')
+            self.OCR = {
+                processImage: (buffer: ArrayBuffer) => {
+                    const result = (wasmModule.instance.exports.process_image as CallableFunction)(
+                        new Uint8Array(buffer),
+                        buffer.byteLength
+                    );
+                    return Promise.resolve(result.toString());
                 }
             };
 
-            const { instance } = await WebAssembly.instantiateStreaming(
-                fetch(wasmPath),
-                imports
-            );
+            isOCRLoaded = true;
+            self.postMessage({ type: 'INIT_SUCCESS' });
+        } catch (error) {
+            self.postMessage({
+                type: 'INIT_ERROR',
+                error: error instanceof Error ? error.message : 'Failed to load OCR'
+            });
+        }
+        return;
+    }
 
-            return instance.exports;
-        };
+    if (!isOCRLoaded) {
+        self.postMessage({
+            error: 'OCR engine not initialized. Send INIT message first.'
+        });
+        return;
+    }
 
-        loadWasm();
-    }, [wasmPath]);
+    const { imageBuffer } = e.data;
+    try {
+        const text = await self.OCR.processImage(imageBuffer);
+        self.postMessage({ text });
+    } catch (error) {
+        self.postMessage({
+            error: error instanceof Error ? error.message : 'OCR processing failed'
+        });
+    }
 };
