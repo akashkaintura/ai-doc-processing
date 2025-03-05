@@ -1,14 +1,26 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use wasm_bindgen::prelude::*;
+use tesseract::TessApi;
+
+#[wasm_bindgen]
+pub struct OcrEngine {
+    api: TessApi,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[wasm_bindgen]
+impl OcrEngine {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Result<OcrEngine, JsValue> {
+        let mut api = TessApi::new(Some("eng"), None)
+            .map_err(|e| JsValue::from_str(&format!("Init error: {}", e)))?;
+        Ok(Self { api })
+    }
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    #[wasm_bindgen]
+    pub fn process_image(&mut self, buffer: &[u8]) -> Result<String, JsValue> {
+        self.api.set_image_from_mem(buffer)
+            .map_err(|e| JsValue::from_str(&format!("Image error: {}", e)))?;
+        
+        self.api.get_utf8_text()
+            .map_err(|e| JsValue::from_str(&format!("OCR error: {}", e)))
     }
 }
