@@ -1,16 +1,26 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  "pipeline": {
+  "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "apps/client/build/**",
+        "apps/server/dist/**",
+        "packages/ai-core/wasm/**"
+      ]
     },
     "dev": {
       "cache": false
     },
-    "test": {
-      "dependsOn": ["build"],
-      "outputs": []
+    "ai:build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "packages/ai-core/wasm/*.wasm"
+      ]
     }
   }
 }
