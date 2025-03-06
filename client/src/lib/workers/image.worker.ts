@@ -1,25 +1,33 @@
 /// <reference lib="webworker" />
 
-declare const self: DedicatedWorkerGlobalScope;
+interface ProcessImageOptions {
+  targetWidth: number;
+  targetHeight: number;
+  quality?: number;
+}
 
 self.onmessage = async (e) => {
-    const { imageData, options } = e.data;
+    const { imageData, options } = e.data as {
+        imageData: ImageData;
+        options: ProcessImageOptions;
+    };
 
     try {
         const processed = await processImage(imageData, options);
         self.postMessage({ imageData: processed });
     } catch (error) {
-        self.postMessage({ error: error.message });
+        self.postMessage({ 
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
 };
 
-async function processImage(data: ImageData, options: {
-    targetWidth: number;
-    targetHeight: number;
-    quality?: number;
-}): Promise<ImageData> {
+async function processImage(
+    data: ImageData,
+    options: ProcessImageOptions
+): Promise<ImageData> {
     const canvas = new OffscreenCanvas(options.targetWidth, options.targetHeight);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     if (!ctx) throw new Error('Canvas context not available');
 

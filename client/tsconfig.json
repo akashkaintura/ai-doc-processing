@@ -2,12 +2,23 @@
   "compilerOptions": {
     "jsx": "react",
     "module": "esnext",
+    "types": [
+      "onnxruntime-web",
+    ],
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@shared/*": [
         "../shared/*"
+      ],
+      "@ai-core/*": [
+        "../ai-core/*"
       ]
-    }
+    },
+    "lib": [
+      "esnext",
+      "webworker",
+      "dom"
+    ]
   }
 }

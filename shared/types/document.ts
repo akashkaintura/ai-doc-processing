@@ -12,9 +12,10 @@ export interface DocumentAnalysis {
     };
 }
 
+export type EntityType = 'PERSON' | 'ORG' | 'DATE' | 'LOCATION' | 'CONTRACT_TERM';
 export interface DocumentEntity {
     text: string;
-    type: 'PERSON' | 'ORG' | 'DATE' | 'LOCATION' | 'CONTRACT_TERM';
+    type: EntityType;
     confidence: number;
     context?: string;
 }

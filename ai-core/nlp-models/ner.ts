@@ -1,5 +1,6 @@
 import * as onnx from 'onnxruntime-node';
 import { Tensor } from 'onnxruntime-node';
+import { tokenize } from './tokenizer';
 
 export class NERModel {
     private session!: onnx.InferenceSession;

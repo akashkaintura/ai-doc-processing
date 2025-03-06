@@ -1,7 +1,12 @@
-import { ErrorHandler } from '@nestjs/common';
+import { Injectable, ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 
-export class ErrorTracker implements ErrorHandler {
+@Catch()
+@Injectable()
+export class ErrorTracker implements ExceptionFilter {
+    catch(exception: Error, host: ArgumentsHost) {
+        this.handleError(exception);
+    }
     handleError(error: any) {
         // Log to multiple destinations
         this.logToSentry(error);

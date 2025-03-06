@@ -1,5 +1,6 @@
 import * as onnx from 'onnxruntime-node';
 import { Tensor } from 'onnxruntime-node';
+import { tokenize } from '../nlp-models/tokenizer';
 
 export class EmbeddingGenerator {
     private session: onnx.InferenceSession;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EmbeddingGenerator } from '../../../../ai-core/embeddings/generate';
-import { DocumentEntity } from '../../../../shared/types/document';
-import { NERModel } from '../../../../ai-core/nlp-models/model-registry.json/ner';
+import { DocumentEntity, EntityType } from '../../../../shared/types/document';
+import { NERModel } from '../../../../ai-core/nlp-models/ner';
 
 @Injectable()
 export class VectorService {
@@ -30,7 +30,7 @@ export class VectorService {
     const entities = await this.nerModel.predict(text);
     return entities.map((entity) => ({
       text: entity.word,
-      type: entity.label,
+      type: entity.label as EntityType,
       confidence: entity.score,
     }));
   }
