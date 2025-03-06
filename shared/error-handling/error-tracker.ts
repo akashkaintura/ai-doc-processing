@@ -1,28 +1,47 @@
-import { Injectable, ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
-@Catch()
 @Injectable()
-export class ErrorTracker implements ExceptionFilter {
-    catch(exception: Error, host: ArgumentsHost) {
-        this.handleError(exception);
-    }
-    handleError(error: any) {
-        // Log to multiple destinations
-        this.logToSentry(error);
-        this.logToElastic(error);
-        this.logToConsole(error);
-    }
+export class ErrorTracker {
+  private readonly logger = new Logger(ErrorTracker.name);
 
-    private logToSentry(error: Error) {
-        Sentry.captureException(error);
-    }
+  constructor(private readonly elasticsearch: ElasticsearchService) {}
 
-    private logToElastic(error: Error) {
-        // Implement Elasticsearch logging
-    }
+  capture(error: Error, context?: Record<string, any>) {
+    this.logToSentry(error, context);
+    this.logToElastic(error, context);
+    this.logToConsole(error, context);
+  }
 
-    private logToConsole(error: Error) {
-        console.error(`[${new Date().toISOString()}]`, error);
+  private logToSentry(error: Error, context?: Record<string, any>) {
+    Sentry.withScope(scope => {
+      if (context) scope.setExtras(context);
+      Sentry.captureException(error);
+    });
+  }
+
+  private async logToElastic(error: Error, context?: Record<string, any>) {
+    try {
+      await this.elasticsearch.index({
+        index: 'error-logs',
+        body: {
+          timestamp: new Date().toISOString(),
+          message: error.message,
+          stack: error.stack,
+          context
+        }
+      });
+    } catch (err) {
+      this.logger.error('Failed to log to Elasticsearch', err.stack);
     }
+  }
+
+  private logToConsole(error: Error, context?: Record<string, any>) {
+    this.logger.error({
+      message: error.message,
+      stack: error.stack,
+      context
+    });
+  }
 }

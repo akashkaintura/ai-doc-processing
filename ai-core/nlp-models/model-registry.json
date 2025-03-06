@@ -13,11 +13,34 @@
                 "training_data": "2023-10-dataset-v1"
             }
         },
+        "text-embedding": {
+            "current": {
+                "version": "v2.1.0",
+                "format": "onnx",
+                "quantized": true,
+                "training_data": "wikipedia-2023-03",
+                "checksum": "a1b2c3d4e5f6",
+                "performance": {
+                    "accuracy": 0.892,
+                    "latency_ms": 42.3,
+                    "size_mb": 256
+                }
+            }
+        },
         "ner": {
             "production": {
                 "version": "v2.1.0",
                 "format": "onnx",
-                "training_data": "legal-entities-2023"
+                "training_data": "legal-entities-2023",
+                "labels": [
+                    "PERSON",
+                    "ORG",
+                    "DATE",
+                    "LOCATION",
+                    "CONTRACT_TERM"
+                ],
+                "tokenizer": "bert-base-uncased",
+                "f1_score": 0.912
             }
         }
     }
