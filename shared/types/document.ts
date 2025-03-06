@@ -1,15 +1,34 @@
 export interface DocumentAnalysis {
     id: string;
     content: string;
-    entities: Entity[];
     summary: string;
+    entities: DocumentEntity[];
     vector: number[];
+    metadata: {
+        language: string;
+        pageCount: number;
+        fileSize: number;
+        processedAt: Date;
+    };
 }
 
-export interface Entity {
+export interface DocumentEntity {
     text: string;
-    type: 'DATE' | 'PERSON' | 'ORG';
+    type: 'PERSON' | 'ORG' | 'DATE' | 'LOCATION' | 'CONTRACT_TERM';
     confidence: number;
+    context?: string;
+}
+
+export interface OCRResult {
+    text: string;
+    confidence: number;
+    blocks: TextBlock[];
+}
+
+interface TextBlock {
+    text: string;
+    boundingBox: number[];
+    pageNumber: number;
 }
 
 // wasm/memory.ts

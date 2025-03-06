@@ -1,0 +1,14 @@
+scrape_configs:
+  - job_name: 'nest_app'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['server:3000']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '(http_requests_total|process_cpu_seconds_total)'
+        action: keep
+
+  - job_name: 'wasm_metrics'
+    static_configs:
+      - targets: ['client:3000']
+    metrics_path: '/wasm-metrics'

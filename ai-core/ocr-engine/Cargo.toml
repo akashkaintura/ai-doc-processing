@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-wasm-bindgen = "0.2"
-tesseract-rs = { git = "https://github.com/antimatter15/tesseract-rs" }
-image = "0.24"
+wasm-bindgen = { version = "0.2.92", features = ["serde-serialize"] }
+tesseract-rs = { git = "https://github.com/antimatter15/tesseract-rs", rev = "d44d985" }
+image = { version = "0.24.9", default-features = false, features = ["png", "jpeg"] }
+
+[lib]
+crate-type = ["cdylib"]

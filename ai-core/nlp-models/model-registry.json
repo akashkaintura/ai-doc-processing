@@ -1,0 +1,24 @@
+{
+    "models": {
+        "text-classification": {
+            "production": {
+                "version": "v1.2.3",
+                "format": "onnx",
+                "training_data": "2023-09-dataset-v4",
+                "checksum": "a1b2c3d4e5"
+            },
+            "staging": {
+                "version": "v1.3.0-beta",
+                "format": "pytorch",
+                "training_data": "2023-10-dataset-v1"
+            }
+        },
+        "ner": {
+            "production": {
+                "version": "v2.1.0",
+                "format": "onnx",
+                "training_data": "legal-entities-2023"
+            }
+        }
+    }
+}
